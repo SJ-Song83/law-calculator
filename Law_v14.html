@@ -1,0 +1,848 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>법무사사무소 이로움 스마트 어시스턴트 v10</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #f8fafc;
+      color: #334155;
+    }
+
+    .card {
+      background: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #f1f5f9;
+    }
+
+    .tab-active {
+      color: #1e40af;
+      border-bottom: 3px solid #1e40af;
+      font-weight: 800;
+    }
+
+    input[type="date"],
+    input[type="number"],
+    select {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      width: 100%;
+      font-size: 0.95rem;
+      transition: 0.2s;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #3b82f6;
+      outline: none;
+      background: #fff;
+      ring: 2px solid #eff6ff;
+    }
+
+    .btn-calc {
+      background: linear-gradient(to right, #1e40af, #3b82f6);
+      color: white;
+      width: 100%;
+      padding: 1rem;
+      border-radius: 1rem;
+      font-weight: 700;
+      margin-top: 1rem;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+      transition: transform 0.1s;
+    }
+
+    .btn-calc:active {
+      transform: scale(0.98);
+    }
+
+    .res-box {
+      margin-top: 1.25rem;
+      padding: 1.25rem;
+      border-radius: 1rem;
+      font-size: 0.9rem;
+      display: none;
+      background-color: #f8fafc;
+      border-left: 5px solid #1e40af;
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 0.4rem;
+      display: block;
+      margin-left: 0.25rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    /* 날짜 강조 박스 */
+    .highlight-date {
+      color: #dc2626;
+      font-weight: 900;
+      background: #fef2f2;
+      padding: 4px 10px;
+      border-radius: 0.5rem;
+      display: inline-block;
+    }
+
+    /* 기한 도과 경고 애니메이션 */
+    .alert-blink {
+      animation: blink 1.5s infinite;
+      color: #dc2626;
+      font-weight: 900;
+    }
+
+    @keyframes blink {
+      0% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+  </style>
+  <style id="v12-redesign-overrides">
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+
+    :root {
+      --ui-ink: #0f172a;
+      --ui-muted: #64748b;
+      --ui-line: rgba(148, 163, 184, 0.22);
+      --ui-card: rgba(255, 255, 255, 0.84);
+      --ui-brand: #1d4ed8;
+      --ui-brand2: #0891b2;
+      --ui-danger: #dc2626;
+      --ui-shadow-lg: 0 20px 48px -24px rgba(15, 23, 42, 0.28);
+      --ui-shadow-sm: 0 10px 22px -18px rgba(15, 23, 42, 0.24);
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      color: var(--ui-ink);
+      background:
+        radial-gradient(1000px 500px at 5% -5%, rgba(59, 130, 246, 0.2), transparent 60%),
+        radial-gradient(850px 450px at 100% 0%, rgba(6, 182, 212, 0.15), transparent 60%),
+        linear-gradient(180deg, #f9fbff 0%, #f2f6fc 45%, #edf1f8 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.35;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.28) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.28) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 100%);
+    }
+
+    .card {
+      position: relative;
+      background: var(--ui-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      border-radius: 1.25rem;
+      box-shadow: var(--ui-shadow-lg);
+      padding: 1.05rem;
+      margin-bottom: 1rem;
+      overflow: hidden;
+      animation: uiRevealUp 0.35s ease both;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(37, 99, 235, 0.9), rgba(8, 145, 178, 0.45), transparent);
+    }
+
+    .hero-card {
+      background:
+        radial-gradient(480px 180px at 0% 0%, rgba(59, 130, 246, 0.16), transparent 65%),
+        radial-gradient(480px 180px at 100% 0%, rgba(6, 182, 212, 0.12), transparent 65%),
+        rgba(255, 255, 255, 0.82);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 0.75rem;
+      align-items: stretch;
+    }
+
+    .hero-stat {
+      border: 1px solid var(--ui-line);
+      border-radius: 0.9rem;
+      background: rgba(255, 255, 255, 0.74);
+      box-shadow: var(--ui-shadow-sm);
+      padding: 0.8rem;
+    }
+
+    .hero-stat strong {
+      display: block;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--ui-ink);
+      margin-bottom: 0.2rem;
+    }
+
+    .hero-stat span {
+      display: block;
+      color: var(--ui-muted);
+      font-size: 0.74rem;
+      line-height: 1.35;
+    }
+
+    .tab-active {
+      color: var(--ui-ink);
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom: 0;
+      border-radius: 999px;
+      box-shadow: 0 12px 20px -16px rgba(37, 99, 235, 0.65);
+      font-weight: 700;
+    }
+
+    nav button {
+      transition: all 0.16s ease;
+      padding-inline: 0.95rem;
+      border-radius: 999px;
+    }
+
+    nav button:not(.tab-active):hover {
+      background: rgba(255, 255, 255, 0.6);
+      color: #334155;
+    }
+
+    input[type="date"],
+    input[type="number"],
+    select {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 0.95rem;
+      padding: 0.82rem 0.9rem;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: rgba(37, 99, 235, 0.5);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .field-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--ui-muted);
+      margin: 0 0 0.45rem;
+      letter-spacing: -0.01em;
+    }
+
+    .field-block {
+      background: rgba(255, 255, 255, 0.56);
+      border: 1px solid rgba(226, 232, 240, 0.95);
+      border-radius: 1rem;
+      padding: 0.95rem;
+      box-shadow: 0 10px 20px -18px rgba(15, 23, 42, 0.24);
+    }
+
+    .field-block+.field-block {
+      margin-top: 0.9rem;
+    }
+
+    .field-header {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .step-pill {
+      min-width: 1.5rem;
+      height: 1.5rem;
+      padding: 0 0.42rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      background: linear-gradient(135deg, #dbeafe, #ecfeff);
+      color: #1d4ed8;
+      font-size: 0.7rem;
+      font-weight: 700;
+      font-family: 'Noto Sans KR', sans-serif;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    }
+
+    .field-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #334155;
+      letter-spacing: -0.01em;
+    }
+
+    .helper-note {
+      border: 1px solid rgba(191, 219, 254, 0.85);
+      background: linear-gradient(180deg, rgba(239, 246, 255, 0.95), rgba(248, 250, 252, 0.92));
+      border-radius: 0.95rem;
+      padding: 0.85rem;
+      margin-bottom: 0.85rem;
+      box-shadow: 0 12px 18px -20px rgba(29, 78, 216, 0.35);
+    }
+
+    .helper-note p {
+      margin: 0;
+      font-size: 0.73rem;
+      color: #1d4ed8;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .option-card {
+      position: relative;
+      margin-left: 0;
+      border-radius: 0.95rem;
+      border: 1px solid rgba(203, 213, 225, 0.9);
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: 0 10px 20px -20px rgba(15, 23, 42, 0.35);
+      transition: transform 0.14s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .option-card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(147, 197, 253, 0.95);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 14px 24px -20px rgba(29, 78, 216, 0.34);
+    }
+
+    .option-card input[type="radio"] {
+      width: 1rem;
+      height: 1rem;
+      accent-color: #2563eb;
+    }
+
+    .option-card:has(input[type="radio"]:checked) {
+      border-color: rgba(37, 99, 235, 0.4);
+      background: linear-gradient(180deg, rgba(239, 246, 255, 0.95), rgba(255, 255, 255, 0.95));
+      box-shadow: 0 16px 26px -22px rgba(37, 99, 235, 0.42);
+    }
+
+    .agm-panel {
+      background: linear-gradient(180deg, rgba(248, 250, 252, 0.92), rgba(255, 255, 255, 0.92));
+      border: 1px dashed rgba(148, 163, 184, 0.55);
+    }
+
+    .btn-calc {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 48%, #0891b2 100%);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 1rem;
+      box-shadow: 0 22px 28px -22px rgba(37, 99, 235, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.38);
+      margin-top: 0.95rem;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+
+    .btn-calc:hover {
+      transform: translateY(-1px);
+      filter: saturate(1.06);
+      box-shadow: 0 24px 30px -22px rgba(37, 99, 235, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    .btn-calc:active {
+      transform: translateY(1px) scale(0.995);
+    }
+
+    .btn-calc::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 18%, rgba(255, 255, 255, 0.18) 45%, transparent 72%);
+      transform: translateX(-120%);
+      transition: transform 0.7s ease;
+    }
+
+    .btn-calc:hover::after {
+      transform: translateX(120%);
+    }
+
+    .res-box {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(203, 213, 225, 0.8);
+      border-left: 5px solid #1e40af;
+      background:
+        radial-gradient(450px 140px at 0% 0%, rgba(191, 219, 254, 0.22), transparent 65%),
+        rgba(248, 250, 252, 0.92);
+      box-shadow: var(--ui-shadow-sm);
+    }
+
+    .highlight-date {
+      color: var(--ui-danger);
+      background: linear-gradient(180deg, #fff1f2, #ffe4e6);
+      border-radius: 999px;
+      border: 1px solid rgba(220, 38, 38, 0.12);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+
+    .floating-footer {
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid rgba(148, 163, 184, 0.16);
+      box-shadow: 0 -14px 28px -26px rgba(15, 23, 42, 0.95);
+    }
+
+    .contact-cta {
+      background: linear-gradient(135deg, #2563eb, #0891b2);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 18px 22px -18px rgba(37, 99, 235, 0.95);
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    .contact-cta:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .muted-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: 1px solid rgba(203, 213, 225, 0.75);
+      background: rgba(255, 255, 255, 0.72);
+      border-radius: 999px;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: #475569;
+      box-shadow: 0 10px 18px -18px rgba(15, 23, 42, 0.42);
+    }
+
+    .muted-chip i {
+      color: #2563eb;
+      font-size: 0.65rem;
+    }
+
+    .soft-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.3), transparent);
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    @keyframes uiRevealUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        padding: 1rem;
+        border-radius: 1rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="pb-44 md:pb-36">
+
+  <header
+    class="sticky top-0 z-[100] border-b border-white/60 bg-white/70 backdrop-blur-xl shadow-[0_12px_24px_-22px_rgba(15,23,42,0.55)] px-4 md:px-6 py-4">
+    <div class="max-w-3xl mx-auto w-full flex items-end justify-between gap-4">
+      <div>
+        <h1 class="text-2xl md:text-[1.7rem] font-black text-slate-900 tracking-tight leading-none">E-LAW UM <span
+            class="text-cyan-600 text-xs md:text-sm align-top font-extrabold">간편 계산기</span></h1>
+        <p class="text-[10px] text-slate-500 font-bold tracking-[0.18em] uppercase mt-1">법무사사무소 이로움</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="p-4 md:p-6 max-w-3xl mx-auto">
+
+    <div id="sec-corp" class="tab-content">
+      <div class="card">
+        <h3 class="font-bold text-lg mb-4 text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-user-tie text-blue-600"></i> 임원 임기 정밀계산
+        </h3>
+
+        <div class="helper-note">
+          <p class="text-[11px] text-blue-700 font-bold leading-tight">
+            <i class="fa-solid fa-circle-info mr-1"></i> 임기 계산 전 반드시 <span class="underline">법인 정관</span>의 임원 관련 규정을
+            확인해주세요. 정관 규정에 따라 임기 만료일이 달라집니다.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <div class="field-block">
+            <label class="field-label">1. 취임 또는 중임 연월일</label>
+            <input type="date" id="corp-date" onchange="toggleAgmInput()">
+          </div>
+
+          <div class="field-block">
+            <label class="field-label mb-2 block">2. 임원 구분 및 정관 규정 선택</label>
+            <div class="space-y-3">
+
+              <label
+                class="option-card relative flex items-start p-3 rounded-xl border border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 has-[:checked]:ring-1 has-[:checked]:ring-blue-600">
+                <input type="radio" name="corp-type" value="dir-normal"
+                  class="mt-1 mr-3 text-blue-600 focus:ring-blue-500" onchange="toggleAgmInput()">
+                <div>
+                  <span class="text-sm font-bold text-blue-800 block mb-1">1. [이사] 규정 없음 (원칙)</span>
+                  <span class="text-xs text-gray-600 leading-tight block">정관에 특별한 규정이 없는 경우 (3년)</span>
+                </div>
+              </label>
+
+              <label
+                class="option-card relative flex items-start p-3 rounded-xl border border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 has-[:checked]:ring-1 has-[:checked]:ring-blue-600">
+                <input type="radio" name="corp-type" value="dir-extend"
+                  class="mt-1 mr-3 text-blue-600 focus:ring-blue-500" onchange="toggleAgmInput()">
+                <div>
+                  <span class="text-sm font-bold text-blue-800 block mb-1">2. [이사] 정관 유형 1</span>
+                  <span class="text-xs text-gray-600 leading-tight block">정관에 "최종의 결산기에 관한 정기주주총회 종결 전에 만료되는 때에는 이사의 임기는
+                    그 총회 종결시까지 연장한다"는 규정이 있는 경우</span>
+                </div>
+              </label>
+
+              <label
+                class="option-card relative flex items-start p-3 rounded-xl border border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 has-[:checked]:ring-1 has-[:checked]:ring-blue-600">
+                <input type="radio" name="corp-type" value="dir-limit"
+                  class="mt-1 mr-3 text-blue-600 focus:ring-blue-500" onchange="toggleAgmInput()">
+                <div>
+                  <span class="text-sm font-bold text-blue-800 block mb-1">3. [이사] 정관 유형 2</span>
+                  <span class="text-xs text-gray-600 leading-tight block">정관에 "최종의 결산기에 관한 정기주주총회의 종결시까지로 한다"는 규정이 있는 경우</span>
+                </div>
+              </label>
+
+              <label
+                class="option-card relative flex items-start p-3 rounded-xl border border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 has-[:checked]:ring-1 has-[:checked]:ring-blue-600">
+                <input type="radio" name="corp-type" value="auditor-agm"
+                  class="mt-1 mr-3 text-blue-600 focus:ring-blue-500" onchange="toggleAgmInput()">
+                <div>
+                  <span class="text-sm font-bold text-slate-700 block mb-1">4. [감사] 상법 제410조</span>
+                  <span class="text-xs text-gray-600 leading-tight block">감사 (취임 후 3년 내 최종 결산기 주총 종결 시)</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div id="agm-input-area" class="hidden field-block agm-panel">
+            <label class="field-label text-slate-800">5. 해당 결산기의 정기주주총회일</label>
+            <p id="agm-guide-text" class="text-[11px] text-slate-600 mb-2 leading-tight">
+            </p>
+            <input type="date" id="corp-agm-date" class="border-slate-300">
+          </div>
+
+          <button onclick="calcCorpTenureV7()" class="btn-calc"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>임기 및 등기 기한 계산</button>
+        </div>
+        <div id="res-corp" class="res-box"></div>
+        <div class="mt-4 rounded-xl border border-red-200 bg-red-50/90 px-3 py-2.5 shadow-sm">
+          <p class="text-[11px] md:text-xs font-bold leading-relaxed text-red-700">
+            <i class="fa-solid fa-triangle-exclamation mr-1"></i> 본 임기계산은 참고용으로 법적효력이 없으며, 법무사사무소이로움은 이로 인한 결과에 법적책임을 부담하지 않습니다.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer
+    class="floating-footer fixed bottom-0 left-0 w-full text-white py-3 px-4 md:px-6 z-[200]">
+    <div class="max-w-3xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
+      <div class="text-left">
+        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.14em] mb-0.5">Office Information</p>
+        <p class="text-[11px] leading-snug text-slate-200">
+          <i class="fa-solid fa-location-dot mr-1 text-[10px] text-blue-400"></i> 서울 서초구 반포대로122, 316호(서초동,현대ESA2)
+        </p>
+      </div>
+      <div class="flex items-center">
+        <a href="tel:02-582-4655"
+          class="contact-cta px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-lg">
+          <i class="fa-solid fa-phone-flip text-xs"></i>
+          <span class="text-sm font-bold tracking-tight">상담문의: 02-582-4655</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // --- 1. 공휴일 및 비즈니스 데이 로직 (2026~2029 확장) ---
+    const HOLIDAYS = [
+      // 2026년
+      '2026-01-01', '2026-02-16', '2026-02-17', '2026-02-18', '2026-02-19', '2026-03-01', '2026-03-02', '2026-05-05', '2026-05-24', '2026-06-06', '2026-08-15', '2026-09-24', '2026-09-25', '2026-09-26', '2026-10-03', '2026-10-09', '2026-12-25',
+      // 2027년
+      '2027-01-01', '2027-02-06', '2027-02-07', '2027-02-08', '2027-02-09', '2027-03-01', '2027-05-05', '2027-05-13', '2027-06-06', '2027-08-15', '2027-09-14', '2027-09-15', '2027-09-16', '2027-10-03', '2027-10-09', '2027-12-25',
+      // 2028년
+      '2028-01-01', '2028-01-26', '2028-01-27', '2028-01-28', '2028-03-01', '2028-05-02', '2028-05-05', '2028-06-06', '2028-08-15', '2028-10-02', '2028-10-03', '2028-10-04', '2028-10-09', '2028-12-25',
+      // 2029년
+      '2029-01-01', '2029-02-12', '2029-02-13', '2029-02-14', '2029-03-01', '2029-05-05', '2029-05-20', '2029-06-06', '2029-08-15', '2029-09-21', '2029-09-22', '2029-09-23', '2029-09-24', '2029-10-03', '2029-10-09', '2029-12-25'
+    ];
+
+    function parseDateInput(dateStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function toYmdLocal(dateObj) {
+      return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+    }
+
+    function isHoliday(dateObj) {
+      const day = dateObj.getDay();
+      const dateStr = toYmdLocal(dateObj);
+      return day === 0 || day === 6 || HOLIDAYS.includes(dateStr);
+    }
+
+    function getNextBusinessDay(dateStr) {
+      let d = parseDateInput(dateStr);
+      while (isHoliday(d)) {
+        d.setDate(d.getDate() + 1);
+      }
+      return d;
+    }
+
+    function formatDate(d) {
+      const week = ['일', '월', '화', '수', '목', '금', '토'][d.getDay()];
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} (${week})`;
+    }
+
+    // --- 2. 탭 전환 로직 ---
+    function switchTab(target) {
+      document.querySelectorAll('.tab-content').forEach(s => s.classList.add('hidden'));
+      document.getElementById('sec-' + target).classList.remove('hidden');
+      document.querySelectorAll('nav button').forEach(b => {
+        b.classList.remove('tab-active');
+        b.classList.add('text-gray-500');
+      });
+      document.getElementById('tab-' + target).classList.add('tab-active');
+      document.getElementById('tab-' + target).classList.remove('text-gray-500');
+    }
+
+    // --- 3. 법인 등기 로직 V7 (UI만 라디오 버튼 대응으로 수정, 로직 동일) ---
+
+    // 지능형 주총일 입력 가이드 및 달력 세팅
+    function toggleAgmInput() {
+      // [수정] 라디오 버튼 값 읽어오기
+      const checkedOption = document.querySelector('input[name="corp-type"]:checked');
+      const type = checkedOption ? checkedOption.value : null;
+
+      const inputArea = document.getElementById('agm-input-area');
+      const dateVal = document.getElementById('corp-date').value;
+      const guideText = document.getElementById('agm-guide-text');
+      const agmInput = document.getElementById('corp-agm-date');
+
+      // 이사 연장형, 이사 단축형, 감사 의 경우 모두 주총일이 필요함
+      const needAgm = ['dir-extend', 'dir-limit', 'auditor-agm'].includes(type);
+
+      if (needAgm) {
+        inputArea.classList.remove('hidden');
+        if (dateVal) {
+          const start = parseDateInput(dateVal);
+          // 취임 3년이 되는 해 계산
+          const year3 = start.getFullYear() + 3;
+
+          // 전년도 12월 말 결산기 -> 해당 연도 3월 주총 (통상적)
+          const agmYear = year3;
+          const closingYear = year3 - 1;
+
+          guideText.innerHTML = `* 귀하의 취임일(${dateVal}) 기준, <b class="text-blue-800">${closingYear}년도 12월 말 결산기</b>에 대한 정기주주총회 날짜를 입력해주세요. <br>(통상적으로 ${agmYear}년 3월 중에 개최됩니다)`;
+
+          // 달력 기본값 및 범위 설정 (사용자 편의성)
+          agmInput.min = `${agmYear}-01-01`;
+          agmInput.max = `${agmYear}-12-31`; // 혹시 모르니 1년 열어둠
+          agmInput.value = `${agmYear}-03-31`; // 기본값 3월 말일
+        }
+      } else {
+        inputArea.classList.add('hidden');
+      }
+      resetCorpResult();
+    }
+
+    function resetCorpResult() {
+      document.getElementById('res-corp').style.display = 'none';
+    }
+
+    /**
+     * 법인 임기 계산 V7.0
+     * - 이사 3가지 시나리오 + 감사 시나리오 통합
+     * - D-Day 경고 시스템 적용
+     */
+    function calcCorpTenureV7() {
+      const startStr = document.getElementById('corp-date').value;
+
+      // [수정] 라디오 버튼 값 읽어오기
+      const checkedOption = document.querySelector('input[name="corp-type"]:checked');
+      const type = checkedOption ? checkedOption.value : null;
+
+      const agmDateStr = document.getElementById('corp-agm-date').value;
+      const res = document.getElementById('res-corp');
+
+      if (!startStr) return alert("취임 또는 중임 연월일을 선택해주세요.");
+      if (!type) return alert("임원 및 정관 규정을 선택해주세요.");
+
+      const start = parseDateInput(startStr);
+      let expireDate;
+      let logicDesc = "";
+
+      // 1. 원칙적 3년 만료일 (초일산입 특약 반영: 3년 - 1일)
+      let date3years = new Date(start);
+      date3years.setFullYear(start.getFullYear() + 3);
+      date3years.setDate(date3years.getDate() - 1);
+
+      // 2. 주총일 관련 변수 설정
+      if (['dir-extend', 'dir-limit', 'auditor-agm'].includes(type)) {
+        if (!agmDateStr) return alert("정기주주총회 날짜를 입력해주세요.");
+
+        const agmDate = parseDateInput(agmDateStr);
+        // [핵심 로직 유지] 주총일 하루 전날을 만료일로 계산 (초일산입 반영)
+        const agmExpireDate = new Date(agmDate);
+
+        if (type === 'dir-extend') {
+          // 연장형: 3년 만료일보다 주총이 늦을 경우 주총 전날까지 연장
+          if (agmDate > date3years) {
+            expireDate = agmExpireDate;
+            logicDesc = "상법 제383조 제3항 (임기 연장) 적용 (주총일 만료)";
+          } else {
+            expireDate = date3years;
+            logicDesc = "주총이 임기 만료 전이므로 원칙적 3년 임기 적용";
+          }
+        } else if (type === 'dir-limit') {
+          // 이사 단축형: 무조건 주총 전날 만료
+          expireDate = agmExpireDate;
+          logicDesc = "정관 규정에 따른 임기 단축 적용 (주총일 만료)";
+        } else if (type === 'auditor-agm') {
+          // 감사: 무조건 주총 전날 만료
+          expireDate = agmExpireDate;
+          logicDesc = "상법 제410조 (감사 임기) 적용 (주총일 만료)";
+        }
+      } else {
+        // 이사 일반형: 3년 고정
+        expireDate = date3years;
+        logicDesc = "상법 원칙상 3년 임기 적용";
+      }
+
+      // 3. 등기 마감일 계산 (만료일 + 14일, 휴일 보정)
+      let limitDateRaw = new Date(expireDate);
+      limitDateRaw.setDate(limitDateRaw.getDate() + 14);
+      let limitDateReal = getNextBusinessDay(toYmdLocal(limitDateRaw));
+
+      // 4. D-Day 및 경고 메시지 생성
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      limitDateReal.setHours(0, 0, 0, 0);
+
+      const diffTime = limitDateReal - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      let dDayNotice = "";
+      let borderClass = "border-blue-500";
+
+      if (diffDays > 0) {
+        dDayNotice = `
+                <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-blue-700 font-bold">📢 등기 마감까지 <span class="text-xl underline">${diffDays}일</span> 남았습니다.</p>
+                    <p class="text-[11px] text-blue-500 mt-1">기한 내에 서류를 준비하여 등기를 완료하세요.</p>
+                </div>`;
+      } else if (diffDays === 0) {
+        dDayNotice = `
+                <div class="mt-3 p-3 bg-orange-100 rounded-lg border border-orange-500 animate-pulse">
+                    <p class="text-orange-700 font-black text-lg">⚠️ 오늘이 등기 신청 마감일입니다!</p>
+                    <p class="text-xs text-orange-600 mt-1">지금 바로 접수하지 않으면 과태료가 발생합니다.</p>
+                </div>`;
+        borderClass = "border-orange-500";
+      } else {
+        const overDays = Math.abs(diffDays);
+        dDayNotice = `
+                <div class="mt-3 p-4 bg-red-50 rounded-lg border-2 border-red-500">
+                    <p class="alert-blink text-red-600 text-lg">🚨 등기 기한이 ${overDays}일 경과되었습니다!</p>
+                    <p class="text-xs text-red-700 mt-2 font-bold leading-tight">
+                        현재 과태료 부과 대상입니다. <br>시간이 지날수록 과태료가 증가하니 즉시 상담하세요.
+                    </p>
+                    <a href="tel:02-582-4655" class="inline-block mt-3 bg-red-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-md w-full text-center">
+                        <i class="fa-solid fa-phone-volume mr-1"></i> 상담문의: 02-582-4655
+                    </a>
+                </div>`;
+        borderClass = "border-red-600";
+      }
+
+      // 5. 결과 출력
+      res.style.display = 'block';
+      res.className = `res-box border-l-8 ${borderClass} transition-all duration-500`;
+      res.innerHTML = `
+            <div class="space-y-2">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-gray-500 font-medium">임기 만료일</span>
+                    <span class="font-bold text-slate-800">${formatDate(expireDate)}</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-gray-500 font-medium">등기 신청 마감일</span>
+                    <span class="highlight-date">${formatDate(limitDateReal)}</span>
+                </div>
+                <p class="text-[10px] text-gray-400 text-right italic">* ${logicDesc}</p>
+                <hr class="my-3 border-gray-100">
+                ${dDayNotice}
+            </div>
+        `;
+    }
+
+    // --- (이하 부동산, 상속 등 다른 메뉴 로직은 변경 없음) ---
+  </script>
+</body>
+
+</html>
+
